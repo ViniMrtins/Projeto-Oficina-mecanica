@@ -1,0 +1,95 @@
+Projeto BD Oficina - Vinicius Martins
+Queries
+
+
+1. Quais peças foram usadas no carro de um determinado cliente?
+query:
+
+SELECT 
+    c.Nome AS Cliente,
+    ca.Placa,
+    s.TipoServico,
+    p.Nome AS Peca,
+    p.Valor
+FROM cliente c
+JOIN carro ca ON ca.cliente_idCliente = c.idCliente
+JOIN EqMecanicos eq ON eq.carro_idCarro = ca.idCarro
+JOIN OrdemServico os ON os.EqMecanicos_idEqMecanicos = eq.idEqMecanicos
+JOIN servico s ON s.idOrdemServico = os.idOrdemServico
+JOIN pecas p ON p.servico_TipoServico = s.TipoServico
+WHERE c.Nome = 'carlos Silva'; -- trocar nome do cliente
+
+
+
+
+
+
+2. Quais serviços foram executados por uma equipe específica?
+query:
+
+SELECT 
+    eq.Identificacao AS Equipe,
+    s.TipoServico,
+    s.PrecoServico,
+    os.Numero AS NumeroOrdem,
+    os.StatusOrdem
+FROM EqMecanicos eq
+JOIN OrdemServico os ON os.EqMecanicos_idEqMecanicos = eq.idEqMecanicos
+JOIN servico s ON s.idOrdemServico = os.idOrdemServico
+WHERE eq.Identificacao = 'Equipe Bravo'; -- Trocar nome da equipe
+
+
+
+
+
+
+3. Quais mecânicos fazem parte de cada equipe?
+query:
+
+SELECT 
+    eq.Identificacao AS Equipe,
+    m.Nome AS Mecanico,
+    m.Especialidade
+FROM mecanico m
+JOIN EqMecanicos eq ON eq.idEqMecanicos = m.idEqMecanicos
+ORDER BY eq.Identificacao;
+
+
+
+
+
+
+4. Resumo de ordens de serviço por cliente
+query:
+
+SELECT 
+    cl.Nome AS Cliente,
+    ca.Placa,
+    os.Numero AS OrdemServico,
+    os.Emissao,
+    os.StatusOrdem,
+    os.Valor
+FROM cliente cl
+JOIN carro ca ON ca.cliente_idCliente = cl.idCliente
+JOIN EqMecanicos eq ON eq.carro_idCarro = ca.idCarro
+JOIN OrdemServico os ON os.EqMecanicos_idEqMecanicos = eq.idEqMecanicos
+ORDER BY cl.Nome;
+
+
+
+
+
+
+5.Clientes com mais de 1 serviço realizado
+query:
+
+SELECT 
+    c.Nome AS Cliente,
+    COUNT(s.TipoServico) AS TotalServicos
+FROM cliente c
+JOIN carro ca ON ca.cliente_idCliente = c.idCliente
+JOIN EqMecanicos eq ON eq.carro_idCarro = ca.idCarro
+JOIN OrdemServico os ON os.EqMecanicos_idEqMecanicos = eq.idEqMecanicos
+JOIN servico s ON s.idOrdemServico = os.idOrdemServico
+GROUP BY c.idCliente
+HAVING COUNT(s.TipoServico) > 1;
